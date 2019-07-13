@@ -3144,7 +3144,9 @@ var $;
                                 anim_to_play.push([atom, anim]);
                             }
                         }
-                    const [count] = $me_atom2_async_anim(anim_to_play, t, start);
+                    const [count, needReplay] = $me_atom2_async_anim(anim_to_play, t, start);
+                    if (needReplay)
+                        $$.$me_atom2_async();
                     return [count, pre];
                 });
             }
@@ -3156,16 +3158,8 @@ var $;
             let needReplay = false, count = 0;
             for (const [atom, anim] of anim_to_play) {
                 count += 1;
-                const t_actual = t + (performance.now() - start);
-                if (anim.start === void 0) {
-                    if (anim.progress === void 0) {
-                        anim.start = t_actual;
-                    }
-                    else {
-                        anim.start = t_actual - anim.delay - Math.min(1, anim.progress) * anim.duration;
-                    }
-                }
-                anim.progress = Math.min(1, (t_actual - anim.start - anim.delay) / anim.duration);
+                $me_atom2_async_anim_start(anim, t);
+                anim.progress = Math.min(1, (t - anim.start - anim.delay) / anim.duration);
                 if (!anim.fn && typeof anim.to !== 'number')
                     $$.$me_throw('anim.fn must be specified');
                 anim.value = anim.fn ?
@@ -3183,6 +3177,12 @@ var $;
             return [count, needReplay];
         }
         $$.$me_atom2_async_anim = $me_atom2_async_anim;
+        function $me_atom2_async_anim_start(anim, t) {
+            if (anim.start == null)
+                anim.start = anim.progress == null ? t :
+                    t - anim.delay - Math.min(1, anim.progress) * anim.duration;
+        }
+        $$.$me_atom2_async_anim_start = $me_atom2_async_anim_start;
         const ops_event = {
             mousemove: (last_now) => {
                 const pre = performance.now() - last_now;
@@ -3348,13 +3348,7 @@ var $;
                     const anim_to_play = new Array();
                     for (const [path, anim] of $$.$me_atom2.anim_to_play) {
                         if (anim.delay) {
-                            if (anim.start === void 0)
-                                if (anim.progress === void 0) {
-                                    anim.start = t;
-                                }
-                                else {
-                                    anim.start = t - anim.delay - Math.min(1, anim.progress) * anim.duration;
-                                }
+                            $$.$me_atom2_async_anim_start(anim, t);
                             if ((t - anim.start) < anim.delay) {
                                 needReplay = true;
                                 continue;
@@ -3587,9 +3581,9 @@ var $;
                             const t_bis = t / duration_step;
                             return Math.min(level + 1, t_bis > level_bis ? level_bis * 2 - t_bis : t_bis);
                         }), size_dot_pt: $$.$me_atom2_prop(['.step_bis', '/.level'], ({ masters: [step, level] }) => {
-                            const t = step / level;
+                            const t = step / (level + 1);
                             const k = 0.3;
-                            return size_initial / Math.pow(2, step) * ((1 - k) * t * t + k);
+                            return size_initial / Math.pow(2, step) * ((1 - k) * t + k);
                         }), size_dot_px: $$.$me_atom2_prop(['.size_dot_pt', '.px_per_point'], ({ masters: [size_dot_pt, px_per_point] }) => size_dot_pt * px_per_point), t_attractor: $$.$me_atom2_prop(['.t', '/.level', '/.duration'], ({ masters: [t, level, duration_step] }) => {
                             const level_bis = level + 1;
                             const t_bis = t / duration_step;
@@ -3658,8 +3652,21 @@ var $;
                         margin: () => 0,
                     },
                     elem,
+                    event: {
+                        clickOrTap: () => {
+                            const atp = anim_to_play;
+                            anim_to_play = $$.$me_atom2.anim_to_play;
+                            $$.$me_atom2.anim_to_play = atp;
+                            if ($$.$me_atom2.anim_to_play.size)
+                                $$.$me_atom2_async();
+                            for (const [path, anim] of anim_to_play)
+                                delete anim.start;
+                            return true;
+                        },
+                    },
                 } });
         };
+        let anim_to_play = new Map();
         function SierpinskiTriangle(id, size_target) {
             if (id.size <= size_target)
                 return [id];
@@ -3702,24 +3709,9 @@ var $;
                             },
                         })),
                     },
-                    event: {
-                        clickOrTap: () => {
-                            console.warn('here');
-                            const atp = anim_to_play;
-                            anim_to_play = $$.$me_atom2.anim_to_play;
-                            $$.$me_atom2.anim_to_play = atp;
-                            console.log(atp, anim_to_play);
-                            if ($$.$me_atom2.anim_to_play.size)
-                                $$.$me_atom2_async();
-                            for (const [path, anim] of anim_to_play)
-                                delete anim.start;
-                            return true;
-                        },
-                    },
                 }),
             });
         };
-        let anim_to_play = new Map();
         const fn_compute_cursor = (p) => {
             const [isHover] = p.masters;
             return isHover ? 'pointer' : 'default';
