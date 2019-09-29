@@ -4389,7 +4389,7 @@ var $;
                                         const step_scale_radius_from = 1;
                                         const step_scale_radius_to = Math.max(1, 5 / (scale * size_initial / Math.pow(2, level)));
                                         const calcStepScaleRadius = (step_val) => {
-                                            const k = Math.pow(step_val / level, level / 2);
+                                            const k = Math.pow(step_val / level, level / 3);
                                             const result = (1 - k) * step_scale_radius_from + k * step_scale_radius_to;
                                             return result;
                                         };
