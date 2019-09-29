@@ -4367,7 +4367,7 @@ var $;
                                     prop: {
                                         t: '<<.t',
                                         scale: $$.$me_atom2_prop(['.#width', '.#height'], ({ masters: [width, height] }) => {
-                                            const result = Math.min(.3 * width / size_initial, .3 * height / size_initial);
+                                            const result = Math.min(.4 * width / size_initial, .4 * height / size_initial);
                                             return result;
                                         }),
                                     },
@@ -4387,14 +4387,16 @@ var $;
                                         const calcItemSize = (step) => size_initial / Math.pow(2, step);
                                         const item_size = calcItemSize(step);
                                         const step_scale_radius_from = 1;
-                                        const step_scale_radius_to = Math.max(1, 5 / (scale * size_initial / Math.pow(2, level)));
+                                        const step_scale_radius_to = Math.max(1, 10 / (scale * size_initial / Math.pow(2, level)));
                                         const calcStepScaleRadius = (step_val) => {
-                                            const k = Math.pow(step_val / level, level / 3);
+                                            const k = Math.pow(step_val / level, level / 2);
                                             const result = (1 - k) * step_scale_radius_from + k * step_scale_radius_to;
                                             return result;
                                         };
                                         const step_scale_radius = calcStepScaleRadius(step_val);
-                                        const step_scale = 2 * step_scale_radius;
+                                        const k = Math.pow(step_val / level, level / 1.5);
+                                        const kk = (1 - k) * 2 + k * (1 + 20 / (Math.pow(level, 1 / 3) + 20));
+                                        const step_scale = kk * step_scale_radius;
                                         const calcCtxRadius = (step_val) => {
                                             const step = Math.ceil(step_val);
                                             const item_size = calcItemSize(step);
