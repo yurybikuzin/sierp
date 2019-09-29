@@ -4389,13 +4389,13 @@ var $;
                                         const step_scale_radius_from = 1;
                                         const step_scale_radius_to = Math.max(1, 10 / (scale * size_initial / Math.pow(2, level)));
                                         const calcStepScaleRadius = (step_val) => {
-                                            const k = Math.pow(step_val / level, level / 2);
+                                            const k = Math.pow(step_val / level, Math.pow(level, .6));
                                             const result = (1 - k) * step_scale_radius_from + k * step_scale_radius_to;
                                             return result;
                                         };
                                         const step_scale_radius = calcStepScaleRadius(step_val);
                                         const k = Math.pow(step_val / level, level / 1.5);
-                                        const kk = (1 - k) * 2 + k * (1 + 20 / (Math.pow(level, 1 / 3) + 20));
+                                        const kk = (1 - k) * 2.2 + k * (1 + 20 / (Math.pow(level, 1 / 3) + 20));
                                         const step_scale = kk * step_scale_radius;
                                         const calcCtxRadius = (step_val) => {
                                             const step = Math.ceil(step_val);
