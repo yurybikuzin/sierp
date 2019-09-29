@@ -4297,7 +4297,7 @@ var $;
     (function ($$) {
         $$.$sierp_canvas_app = (rootElem) => {
             $$.$me_atom2_entity.root().props({
-                level: () => 1,
+                level: $$.$me_atom2_prop([], () => 1, ({ val }) => console.warn({ level: val })),
                 duration: $$.$me_atom2_prop_store(1000, val => Number.isInteger(val) && val >= 100),
             });
             return new $$.$me_atom2_elem({ tail: 'app', cnf: {
@@ -4389,7 +4389,7 @@ var $;
                                         const step_scale_radius_from = 1;
                                         const step_scale_radius_to = Math.max(1, 5 / (scale * size_initial / Math.pow(2, level)));
                                         const calcStepScaleRadius = (step_val) => {
-                                            const k = Math.pow(step_val / level, level);
+                                            const k = Math.pow(step_val / level, level / 2);
                                             const result = (1 - k) * step_scale_radius_from + k * step_scale_radius_to;
                                             return result;
                                         };
